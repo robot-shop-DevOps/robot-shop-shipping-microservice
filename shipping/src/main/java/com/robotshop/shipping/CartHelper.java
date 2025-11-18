@@ -1,4 +1,4 @@
-package com.instana.robotshop.shipping;
+package com.robotshop.shipping;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

@@ -1,4 +1,4 @@
-package com.instana.robotshop.shipping;
+package com.robotshop.shipping;
 
 import java.util.List;
 import java.util.Arrays;
@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,9 +22,9 @@ import org.springframework.http.HttpStatus;
 public class Controller {
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
-    private String CART_URL = String.format("http://%s/shipping/", getenv("CART_ENDPOINT", "cart"));
+    private final String CART_URL;
 
-    public static List bytesGlobal = Collections.synchronizedList(new ArrayList<byte[]>());
+    public static List bytesGlobal = Collections.synchronizedList(new ArrayList<>());
 
     @Autowired
     private CityRepository cityrepo;
@@ -31,11 +32,12 @@ public class Controller {
     @Autowired
     private CodeRepository coderepo;
 
-    private String getenv(String key, String def) {
-        String val = System.getenv(key);
-        val = val == null ? def : val;
-
-        return val;
+    public Controller(
+        @Value("${cart.endpoint}") String cartEndpoint, 
+        @Value("${cart.port}") String cartPort
+    ) {
+        this.CART_URL = "http://" + cartEndpoint + ":" + cartPort + "/shipping/";
+        logger.info("CART_URL = {}", this.CART_URL);
     }
 
     @GetMapping(path = "/memory")
@@ -52,11 +54,6 @@ public class Controller {
         bytesGlobal.clear();
 
         return bytesGlobal.size();
-    }
-
-    @GetMapping("/health")
-    public String health() {
-        return "OK";
     }
 
     @GetMapping("/count")
@@ -112,7 +109,7 @@ public class Controller {
 
         logger.info("Calculation for {}", id);
 
-        City city = cityrepo.findById(id);
+        City city = cityrepo.findById(id).orElse(null);
         if (city == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "city not found");
         }

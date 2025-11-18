@@ -1,4 +1,4 @@
-package com.instana.robotshop.shipping;
+package com.robotshop.shipping;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -27,4 +27,3 @@ class RetryableDataSource extends AbstractDataSource {
         return delegate.getConnection(username, password);
     }
 }
-

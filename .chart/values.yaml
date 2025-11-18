@@ -1,0 +1,87 @@
+labels:
+  app: Shipping
+  project: Robot-Shop
+  technology: Java
+  environment: default 
+
+deployment:
+  name: shipping
+
+  replicas: 1
+
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+
+  pod:
+    nodeSelector:
+      project: Robot-Shop
+
+    containers:  
+    - name: shipping
+
+      image: ${IMAGE}  # <-- placeholder
+
+      imagePullPolicy: Always
+
+      ports:
+      - containerPort: 8526
+
+      resources:
+        requests:
+          cpu: "50m"
+          memory: "128Mi"
+
+        limits:
+          cpu: "200m"
+          memory: "512Mi"
+
+      env:
+      - name: MYSQL_HOST
+        value: mysql-service-headless.mysql-database.svc.cluster.local
+
+      - name: MYSQ_USER  
+        valueFrom:
+          secretKeyRef:
+            name: mysql
+            key: USER
+
+      - name: MYSQ_PASS 
+        valueFrom:
+          secretKeyRef:
+            name: mysql
+            key: PASSWORD
+       
+      - name: CART_HOST
+        value: cart.cart-microservice.svc.cluster.local
+      
+      - name: CART_SERVER_PORT
+        value: 8326
+
+      readinessProbe:
+        httpGet:
+          path: /actuator/health/readiness
+          port: 8526
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        failureThreshold: 3
+        
+      livenessProbe:
+        httpGet:
+          path: /actuator/health/liveness
+          port: 8526
+        initialDelaySeconds: 15
+        periodSeconds: 20
+        failureThreshold: 3
+
+
+service:
+  name: shipping
+
+  type: ClusterIP
+
+  ports:
+  - name: shipping
+    port: 8526
+    targetPort: 8526

@@ -1,4 +1,4 @@
-package com.instana.robotshop.shipping;
+package com.robotshop.shipping;
 
 import java.util.List;
 

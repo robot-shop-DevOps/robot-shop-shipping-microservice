@@ -1,4 +1,4 @@
-package com.instana.robotshop.shipping;
+package com.robotshop.shipping;
 
 import java.util.List;
 
@@ -12,6 +12,4 @@ public interface CityRepository extends CrudRepository<City, Long> {
         value = "select c from City c where c.code = ?1 and c.city like ?2%"
     )
     List<City> match(String code, String text);
-
-    City findById(long id);
 }
