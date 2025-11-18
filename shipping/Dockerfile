@@ -1,4 +1,4 @@
-FROM robotshopdevacr.azurecr.io/baseimages/maven:3.9.11-eclipse-temurin-8-alpine-internal AS build
+FROM robotshopdevacr.azurecr.io/baseimages/maven:3.9.11-eclipse-temurin-8-internal AS build
 
 WORKDIR /app
 
