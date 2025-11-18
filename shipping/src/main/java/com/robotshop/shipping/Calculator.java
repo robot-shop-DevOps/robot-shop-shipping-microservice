@@ -1,5 +1,4 @@
-package com.instana.robotshop.shipping;
-
+package com.robotshop.shipping;
 
 public class Calculator {
     private double latitude = 0;
@@ -40,4 +39,3 @@ public class Calculator {
         return (long)Math.rint(earthRadius * c / 1000.0);
     }
 }
-

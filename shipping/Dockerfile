@@ -1,30 +1,19 @@
-#
-# Build
-#
-FROM debian:10 AS build
+FROM robotshopdevacr.azurecr.io/baseimages/maven:3.9.11-eclipse-temurin-8-internal AS build
 
-RUN apt-get update && apt-get -y install maven
+WORKDIR /app
 
-WORKDIR /opt/shipping
+COPY pom.xml .
 
-COPY pom.xml /opt/shipping/
-RUN mvn dependency:resolve
-COPY src /opt/shipping/src/
-RUN mvn package
+RUN mvn -B dependency:go-offline
 
-#
-# Run
-#
-FROM openjdk:8-jdk
+COPY src ./src
 
-EXPOSE 8080
+RUN mvn -B clean package -DskipTests=true
 
-WORKDIR /opt/shipping
+FROM robotshopdevacr.azurecr.io/baseimages/eclipse-temurin:8-jre-alpine-internal
 
-ENV CART_ENDPOINT=cart:8080
-ENV DB_HOST=mysql
+WORKDIR /app
 
-COPY --from=build /opt/shipping/target/shipping-1.0.jar shipping.jar
+COPY --from=build /app/target/*.jar app.jar
 
-CMD [ "java", "-Xmn256m", "-Xmx768m", "-jar", "shipping.jar" ]
-
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

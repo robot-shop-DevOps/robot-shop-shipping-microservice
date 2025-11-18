@@ -1,4 +1,4 @@
-package com.instana.robotshop.shipping;
+package com.robotshop.shipping;
 
 /**
  * Bean to hold shipping information
