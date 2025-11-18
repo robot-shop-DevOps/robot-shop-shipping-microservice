@@ -21,32 +21,10 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import java.util.Random;
 
 @SpringBootApplication
-@EnableRetry
 @EnableWebMvc
 public class ShippingServiceApplication implements WebMvcConfigurer {
 
     public static void main(String[] args) {
         SpringApplication.run(ShippingServiceApplication.class, args);
-    }
-
-    @Bean
-    public BeanPostProcessor dataSourceWrapper() {
-        return new DataSourcePostProcessor();
-    }
-
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    private static class DataSourcePostProcessor implements BeanPostProcessor {
-        @Override
-        public Object postProcessBeforeInitialization(Object bean, String name) throws BeansException {
-            if (bean instanceof DataSource) {
-                bean = new RetryableDataSource((DataSource)bean);
-            }
-            return bean;
-        }
-
-        @Override
-        public Object postProcessAfterInitialization(Object bean, String name) throws BeansException {
-            return bean;
-        }
     }
 }
