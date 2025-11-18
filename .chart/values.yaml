@@ -38,6 +38,9 @@ deployment:
           memory: "512Mi"
 
       env:
+      - name: SHIPPING_SERVER_PORT
+        value: "8526"
+        
       - name: MYSQL_URL
         valueFrom:
           secretKeyRef:
