@@ -39,8 +39,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: surefire-reports
-          path: target/surefire-reports
-        working-directory: ./shipping
+          path: shipping/target/surefire-reports
 
     build:
       runs-on: robot-shop-runner-azure-dev
