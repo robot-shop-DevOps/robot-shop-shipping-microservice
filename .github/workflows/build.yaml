@@ -29,7 +29,11 @@ jobs:
           java-version: "8"
           distribution: "temurin"
           cache: "maven"
-          mvn-install: true
+
+      - name: Install Maven
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y maven
 
       - name: Build & Test
         run: mvn -B clean verify
