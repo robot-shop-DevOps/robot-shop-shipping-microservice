@@ -32,6 +32,7 @@ jobs:
 
       - name: Build & Test
         run: mvn -B clean verify
+        working-directory: ./shipping
 
       - name: Upload Test Reports
         if: failure()
@@ -39,6 +40,7 @@ jobs:
         with:
           name: surefire-reports
           path: target/surefire-reports
+        working-directory: ./shipping
 
     build:
       runs-on: robot-shop-runner-azure-dev
