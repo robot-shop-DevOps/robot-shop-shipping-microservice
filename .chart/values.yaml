@@ -38,8 +38,11 @@ deployment:
           memory: "512Mi"
 
       env:
-      - name: MYSQL_HOST
-        value: mysql-service-headless.mysql-database.svc.cluster.local
+      - name: MYSQL_URL
+        valueFrom:
+          secretKeyRef:
+            name: mysql
+            key: URL
 
       - name: MYSQ_USER  
         valueFrom:
@@ -57,7 +60,7 @@ deployment:
         value: cart.cart-microservice.svc.cluster.local
       
       - name: CART_SERVER_PORT
-        value: 8326
+        value: "8326"
 
       readinessProbe:
         httpGet:
