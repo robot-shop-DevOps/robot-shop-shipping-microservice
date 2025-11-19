@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.sql.Connection;
+import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
 @RestController
@@ -23,6 +26,8 @@ public class Controller {
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
     private final String CART_URL;
+
+    private final DataSource dataSource;
 
     public static List bytesGlobal = Collections.synchronizedList(new ArrayList<>());
 
@@ -34,10 +39,26 @@ public class Controller {
 
     public Controller(
         @Value("${cart.endpoint}") String cartEndpoint, 
-        @Value("${cart.port}") String cartPort
+        @Value("${cart.port}") String cartPort,
+        DataSource dataSource
     ) {
         this.CART_URL = "http://" + cartEndpoint + ":" + cartPort + "/shipping/";
         logger.info("CART_URL = {}", this.CART_URL);
+        this.dataSource = dataSource;
+    }
+
+    @GetMapping("/health/liveness")
+    public ResponseEntity<String> live() {
+        return ResponseEntity.ok("OK");
+    }
+
+    @GetMapping("/health/readiness")
+    public ResponseEntity<String> ready() {
+        try (Connection conn = dataSource.getConnection()) {
+            return ResponseEntity.ok("OK");
+        } catch (Exception e) {
+            return ResponseEntity.status(503).body(e.getMessage());
+        }
     }
 
     @GetMapping(path = "/memory")
