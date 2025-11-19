@@ -71,6 +71,7 @@ deployment:
           port: 8526
         initialDelaySeconds: 120
         periodSeconds: 10
+        timeoutSeconds: 6
         failureThreshold: 5
 
       livenessProbe:
@@ -79,6 +80,7 @@ deployment:
           port: 8526
         initialDelaySeconds: 120
         periodSeconds: 20
+        timeoutSeconds: 6
         failureThreshold: 5
 
 
