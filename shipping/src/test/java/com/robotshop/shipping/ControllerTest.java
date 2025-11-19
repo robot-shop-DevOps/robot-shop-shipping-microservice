@@ -4,6 +4,9 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.sql.Connection;
+import javax.sql.DataSource;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -11,10 +14,13 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.mockito.Mockito;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.data.domain.Sort;
@@ -31,14 +37,57 @@ class ControllerTest {
     @MockBean
     private CodeRepository coderepo;
 
+    @MockBean
+    private DataSource dataSource;
+
     @BeforeEach
     void setup() {
         Controller.bytesGlobal.clear();
     }
 
-    // ==========================
+    // ===============================
+    // /health/liveness
+    // ===============================
+    @Test
+    void testLiveness() {
+        Controller controller = new Controller("cart", "8326", dataSource);
+        ResponseEntity<String> resp = controller.live();
+
+        assert(resp.getStatusCodeValue() == 200);
+        assert("OK".equals(resp.getBody()));
+    }
+
+    // ===============================
+    // /health/readiness (OK)
+    // ===============================
+    @Test
+    void testReadinessOk() throws Exception {
+        Connection conn = Mockito.mock(Connection.class);
+        when(dataSource.getConnection()).thenReturn(conn);
+
+        Controller controller = new Controller("cart", "8326", dataSource);
+        ResponseEntity<String> resp = controller.ready();
+
+        assert(resp.getStatusCodeValue() == 200);
+        assert("OK".equals(resp.getBody()));
+    }
+
+    // ===============================
+    // /health/readiness (FAIL)
+    // ===============================
+    @Test
+    void testReadinessDbFail() throws Exception {
+        when(dataSource.getConnection()).thenThrow(new RuntimeException("DB DOWN"));
+
+        Controller controller = new Controller("cart", "8326", dataSource);
+        ResponseEntity<String> resp = controller.ready();
+
+        assert(resp.getStatusCodeValue() == 503);
+    }
+
+    // ===============================
     // /count
-    // ==========================
+    // ===============================
     @Test
     void testCount() throws Exception {
         when(cityrepo.count()).thenReturn(5L);
@@ -48,9 +97,9 @@ class ControllerTest {
                 .andExpect(content().string("5"));
     }
 
-    // ==========================
+    // ===============================
     // /codes
-    // ==========================
+    // ===============================
     @Test
     void testCodes() throws Exception {
         Code c = new Code();
@@ -64,9 +113,9 @@ class ControllerTest {
                 .andExpect(jsonPath("$[0].name").value("India"));
     }
 
-    // ==========================
+    // ===============================
     // /cities/{code}
-    // ==========================
+    // ===============================
     @Test
     void testCities() throws Exception {
         City c = new City();
@@ -80,9 +129,9 @@ class ControllerTest {
                 .andExpect(jsonPath("$[0].city").value("Hyderabad"));
     }
 
-    // ==========================
+    // ===============================
     // /match/{code}/{text}
-    // ==========================
+    // ===============================
     @Test
     void testMatchValid() throws Exception {
         City c = new City();
@@ -108,16 +157,16 @@ class ControllerTest {
         c.setCity("City");
 
         when(cityrepo.match("IN", "Cit"))
-                .thenReturn(Collections.nCopies(20, c)); // 20 results
+                .thenReturn(Collections.nCopies(20, c));
 
         mockMvc.perform(get("/match/IN/Cit"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(9));
     }
 
-    // ==========================
+    // ===============================
     // /calc/{id}
-    // ==========================
+    // ===============================
     @Test
     void testCalcSuccess() throws Exception {
         City c = new City();
@@ -140,9 +189,9 @@ class ControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    // ==========================
+    // ===============================
     // /memory
-    // ==========================
+    // ===============================
     @Test
     void testMemoryAddsOnce() throws Exception {
         mockMvc.perform(get("/memory"))
@@ -150,9 +199,9 @@ class ControllerTest {
                 .andExpect(content().string("1"));
     }
 
-    // ==========================
+    // ===============================
     // /free
-    // ==========================
+    // ===============================
     @Test
     void testFreeClearsMemory() throws Exception {
         Controller.bytesGlobal.add(new byte[1024]);
