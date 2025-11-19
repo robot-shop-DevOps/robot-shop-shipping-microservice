@@ -69,17 +69,17 @@ deployment:
         httpGet:
           path: /health/readiness
           port: 8526
-        initialDelaySeconds: 5
+        initialDelaySeconds: 40
         periodSeconds: 10
-        failureThreshold: 3
-        
+        failureThreshold: 5
+
       livenessProbe:
         httpGet:
           path: /health/liveness
           port: 8526
-        initialDelaySeconds: 15
+        initialDelaySeconds: 60
         periodSeconds: 20
-        failureThreshold: 3
+        failureThreshold: 5
 
 
 service:
