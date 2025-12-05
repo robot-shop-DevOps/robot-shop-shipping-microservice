@@ -4,11 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -23,38 +28,46 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain chain) throws ServletException, IOException {
 
         String path = request.getRequestURI();
-        logger.info("=== JWT Filter - Path: {}", path);
+        logger.info("=== JwtFilter triggered ===");
+        logger.info("Request Path: {}", path);
 
-        // ***** BYPASS JWT FOR HEALTH CHECKS *****
+        // Skip health endpoints
         if (path.startsWith("/health")) {
-            logger.info("Health check - bypassing JWT");
+            logger.info("Health endpoint detected -> skipping JWT check");
             chain.doFilter(request, response);
             return;
         }
 
         String authHeader = request.getHeader("Authorization");
-        logger.info("Authorization Header: {}", authHeader != null ? "Present" : "Missing");
+        logger.info("Authorization Header: {}", (authHeader != null ? "Present" : "Missing"));
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            logger.warn("Missing or invalid Authorization header");
+            logger.error("Missing or invalid Authorization header");
             response.sendError(HttpStatus.UNAUTHORIZED.value(), "Missing token");
             return;
         }
 
         String token = authHeader.substring(7);
-        logger.info("Token extracted (first 20 chars): {}", token.substring(0, Math.min(20, token.length())));
+        logger.info("Extracted Token (first 20 chars): {}", token.substring(0, Math.min(20, token.length())));
 
-        boolean isValid = jwtUtil.validateToken(token);
-        logger.info("Token validation result: {}", isValid);
+        boolean valid = jwtUtil.validateToken(token);
+        logger.info("Token validation result: {}", valid);
 
-        if (!isValid) {
-            logger.error("Token validation failed!");
+        if (!valid) {
+            logger.error("Token validation failed");
             response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid token");
             return;
         }
 
-        logger.info("Token valid - proceeding with request");
+        // Authentication success
+        logger.info("Token VALID - setting Authentication in SecurityContext");
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken("user", null, new ArrayList<>());
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        logger.info("Authentication set → proceeding with request");
         chain.doFilter(request, response);
     }
-
 }
