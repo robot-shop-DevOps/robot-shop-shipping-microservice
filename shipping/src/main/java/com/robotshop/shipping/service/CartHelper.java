@@ -21,54 +21,63 @@ import org.apache.http.params.HttpParams;
 public class CartHelper {
     private static final Logger logger = LoggerFactory.getLogger(CartHelper.class);
 
-    private String baseUrl;
+    private final String baseUrl;
+    private final String jwt;   // ⭐ Store JWT here
 
-    public CartHelper(String baseUrl) {
+    // ⭐ Updated constructor to receive JWT from controller
+    public CartHelper(String baseUrl, String jwt) {
         this.baseUrl = baseUrl;
+        this.jwt = jwt;
     }
 
-    // TODO - Remove deprecated calls
     public String addToCart(String id, String data) {
         logger.info("add shipping to cart {}", id);
         StringBuilder buffer = new StringBuilder();
 
         CloseableHttpClient httpClient = null;
+
         try {
-            // URL-encode user ID or name for safety
+            // URL-encode ID for safety
             String encodedId = URLEncoder.encode(id, StandardCharsets.UTF_8.toString());
             logger.info("Encoded ID: {}", encodedId);
 
             String finalUrl = baseUrl + encodedId;
             logger.info("Calling Cart service with URL: {}", finalUrl);
 
-            // set timeout to 5 secs
+            // set timeout
             HttpParams httpParams = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
 
             httpClient = HttpClients.createDefault();
             HttpPost postRequest = new HttpPost(finalUrl);
 
+            // ⭐ Forward JWT to Cart MS
+            logger.info("Forwarding Authorization header to Cart MS");
+            postRequest.setHeader("Authorization", jwt);
+
+            // JSON payload
             StringEntity payload = new StringEntity(data);
             payload.setContentType("application/json");
             postRequest.setEntity(payload);
 
             CloseableHttpResponse res = httpClient.execute(postRequest);
 
-            if (res.getStatusLine().getStatusCode() == 200) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(res.getEntity().getContent()));
+            int status = res.getStatusLine().getStatusCode();
+            logger.info("Cart service response code: {}", status);
+
+            if (status == 200) {
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(res.getEntity().getContent())
+                );
                 String line;
                 while ((line = in.readLine()) != null) {
                     buffer.append(line);
                 }
             } else {
-                logger.warn("Failed with code {}", res.getStatusLine().getStatusCode());
+                logger.warn("Failed with code {}", status);
             }
 
-            try {
-                res.close();
-            } catch (IOException e) {
-                logger.warn("httpresponse", e);
-            }
+            res.close();
 
         } catch (Exception e) {
             logger.warn("http client exception", e);
@@ -82,6 +91,6 @@ public class CartHelper {
             }
         }
 
-        return buffer.toString(); // empty if error
+        return buffer.toString();
     }
 }

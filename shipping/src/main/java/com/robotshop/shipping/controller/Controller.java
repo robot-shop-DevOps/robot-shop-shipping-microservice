@@ -154,11 +154,18 @@ public class Controller {
 
     // enforce content type
     @PostMapping(path = "/confirm/{id}", consumes = "application/json", produces = "application/json")
-    public String confirm(@PathVariable String id, @RequestBody String body) {
+    public String confirm(
+            @PathVariable String id,
+            @RequestBody String body,
+            @RequestHeader("Authorization") String authHeader) {
+
         logger.info("confirm id: {}", id);
         logger.info("body {}", body);
+        logger.info("Forwarding JWT to Cart service");
 
-        CartHelper helper = new CartHelper(CART_URL);
+        // Pass JWT to CartHelper
+        CartHelper helper = new CartHelper(CART_URL, authHeader);
+
         String cart = helper.addToCart(id, body);
 
         if (cart.equals("")) {
