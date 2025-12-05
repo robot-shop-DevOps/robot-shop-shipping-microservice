@@ -14,8 +14,27 @@ public class JwtUtil {
     private final String secret;
 
     public JwtUtil(@Value("${jwt.secret}") String secret) {
-        this.secret = secret;
-        logger.info("JwtUtil initialized with secret length: {}", secret != null ? secret.length() : 0);
+        this.secret = secret != null ? secret.trim() : null;
+        logger.info("======================================");
+        logger.info("JwtUtil Constructor Called");
+        logger.info("Raw secret param: [{}]", secret);
+        logger.info("Trimmed secret: [{}]", this.secret);
+        logger.info("Secret length: {}", this.secret != null ? this.secret.length() : 0);
+        
+        if (this.secret != null && this.secret.length() >= 10) {
+            logger.info("First 10 chars: [{}]", this.secret.substring(0, 10));
+            logger.info("Last 10 chars: [{}]", this.secret.substring(this.secret.length() - 10));
+        }
+        
+        // Log each character code to detect hidden characters
+        if (this.secret != null) {
+            logger.info("Secret char codes (first 20): {}", 
+                this.secret.substring(0, Math.min(20, this.secret.length()))
+                    .chars()
+                    .mapToObj(Integer::toString)
+                    .collect(java.util.stream.Collectors.joining(",")));
+        }
+        logger.info("======================================");
     }
 
     public String extractUsername(String token) {
