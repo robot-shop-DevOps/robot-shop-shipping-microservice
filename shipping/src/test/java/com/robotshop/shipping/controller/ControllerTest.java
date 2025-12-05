@@ -1,4 +1,4 @@
-package com.robotshop.shipping;
+package com.robotshop.shipping.controller;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.data.domain.Sort;
 
+import com.robotshop.shipping.repository.CityRepository;
+import com.robotshop.shipping.repository.CodeRepository;
+import com.robotshop.shipping.model.Code;
+import com.robotshop.shipping.model.City;
+import com.robotshop.shipping.security.JwtFilter;
+import com.robotshop.shipping.security.JwtUtil;
+
+@AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(controllers = Controller.class)
 class ControllerTest {
 
@@ -39,6 +48,13 @@ class ControllerTest {
 
     @MockBean
     private DataSource dataSource;
+
+    @MockBean
+    private JwtFilter jwtFilter;
+
+    @MockBean
+    private JwtUtil jwtUtil;
+
 
     @BeforeEach
     void setup() {

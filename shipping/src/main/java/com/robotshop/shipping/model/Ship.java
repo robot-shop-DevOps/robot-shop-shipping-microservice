@@ -1,4 +1,4 @@
-package com.robotshop.shipping;
+package com.robotshop.shipping.model;
 
 /**
  * Bean to hold shipping information
@@ -38,4 +38,3 @@ public class Ship {
         return String.format("Distance: %d Cost: %f", distance, cost);
     }
 }
-

@@ -1,4 +1,4 @@
-package com.robotshop.shipping;
+package com.robotshop.shipping.controller;
 
 import java.util.List;
 import java.util.Arrays;
@@ -20,6 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import com.robotshop.shipping.repository.CityRepository;
+import com.robotshop.shipping.repository.CodeRepository;
+import com.robotshop.shipping.model.Code;
+import com.robotshop.shipping.model.City;
+import com.robotshop.shipping.model.Ship;
+import com.robotshop.shipping.service.Calculator;
+import com.robotshop.shipping.service.CartHelper;
 
 @RestController
 public class Controller {

@@ -1,9 +1,10 @@
-package com.robotshop.shipping;
+package com.robotshop.shipping.repository;
 
 import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.jpa.repository.Query;
+import com.robotshop.shipping.model.City;
 
 public interface CityRepository extends CrudRepository<City, Long> {
     List<City> findByCode(String code);

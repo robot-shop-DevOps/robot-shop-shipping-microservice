@@ -58,6 +58,12 @@ deployment:
           secretKeyRef:
             name: mysql
             key: PASSWORD
+
+      - name: JWT_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: jwt
+            key: JWT_SECRET
        
       - name: CART_HOST
         value: cart.cart-microservice.svc.cluster.local

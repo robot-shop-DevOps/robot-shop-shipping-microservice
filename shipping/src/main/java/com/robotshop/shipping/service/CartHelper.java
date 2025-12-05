@@ -1,4 +1,4 @@
-package com.robotshop.shipping;
+package com.robotshop.shipping.service;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
