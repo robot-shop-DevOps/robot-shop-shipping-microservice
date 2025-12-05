@@ -1,15 +1,17 @@
-package com.robotshop.shipping;
+package com.robotshop.shipping.service;
+
+import com.robotshop.shipping.model.City;
 
 public class Calculator {
     private double latitude = 0;
     private double longitude = 0;
 
-    Calculator(double latitdue, double longitude) {
+    public Calculator(double latitdue, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
-    Calculator(City city) {
+    public Calculator(City city) {
         this.latitude = city.getLatitude();
         this.longitude = city.getLongitude();
     }

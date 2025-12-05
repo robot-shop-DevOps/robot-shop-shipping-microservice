@@ -1,4 +1,4 @@
-package com.robotshop.shipping;
+package com.robotshop.shipping.model;
 
 import javax.persistence.Table;
 import javax.persistence.Entity;
