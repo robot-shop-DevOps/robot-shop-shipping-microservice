@@ -3,6 +3,8 @@ package com.robotshop.shipping.service;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +20,7 @@ import org.apache.http.params.HttpParams;
 
 public class CartHelper {
     private static final Logger logger = LoggerFactory.getLogger(CartHelper.class);
-    
+
     private String baseUrl;
 
     public CartHelper(String baseUrl) {
@@ -32,15 +34,24 @@ public class CartHelper {
 
         CloseableHttpClient httpClient = null;
         try {
+            // URL-encode user ID or name for safety
+            String encodedId = URLEncoder.encode(id, StandardCharsets.UTF_8.toString());
+            logger.info("Encoded ID: {}", encodedId);
+
+            String finalUrl = baseUrl + encodedId;
+            logger.info("Calling Cart service with URL: {}", finalUrl);
+
             // set timeout to 5 secs
             HttpParams httpParams = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
 
             httpClient = HttpClients.createDefault();
-            HttpPost postRequest = new HttpPost(baseUrl + id);
+            HttpPost postRequest = new HttpPost(finalUrl);
+
             StringEntity payload = new StringEntity(data);
             payload.setContentType("application/json");
             postRequest.setEntity(payload);
+
             CloseableHttpResponse res = httpClient.execute(postRequest);
 
             if (res.getStatusLine().getStatusCode() == 200) {
@@ -52,24 +63,25 @@ public class CartHelper {
             } else {
                 logger.warn("Failed with code {}", res.getStatusLine().getStatusCode());
             }
+
             try {
                 res.close();
-            } catch(IOException e) {
+            } catch (IOException e) {
                 logger.warn("httpresponse", e);
             }
-        } catch(Exception e) {
+
+        } catch (Exception e) {
             logger.warn("http client exception", e);
         } finally {
             if (httpClient != null) {
                 try {
                     httpClient.close();
-                } catch(IOException e) {
+                } catch (IOException e) {
                     logger.warn("httpclient", e);
                 }
             }
         }
 
-        // this will be empty on error
-        return buffer.toString();
+        return buffer.toString(); // empty if error
     }
 }
