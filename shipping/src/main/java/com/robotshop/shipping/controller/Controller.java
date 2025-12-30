@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestHeader;
 import com.robotshop.shipping.repository.CityRepository;
 import com.robotshop.shipping.repository.CodeRepository;
 import com.robotshop.shipping.model.Code;
@@ -154,11 +155,18 @@ public class Controller {
 
     // enforce content type
     @PostMapping(path = "/confirm/{id}", consumes = "application/json", produces = "application/json")
-    public String confirm(@PathVariable String id, @RequestBody String body) {
+    public String confirm(
+            @PathVariable String id,
+            @RequestBody String body,
+            @RequestHeader("Authorization") String authHeader) {
+
         logger.info("confirm id: {}", id);
         logger.info("body {}", body);
+        logger.info("Forwarding JWT to Cart service");
 
-        CartHelper helper = new CartHelper(CART_URL);
+        // Pass JWT to CartHelper
+        CartHelper helper = new CartHelper(CART_URL, authHeader);
+
         String cart = helper.addToCart(id, body);
 
         if (cart.equals("")) {
