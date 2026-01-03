@@ -1,30 +1,33 @@
 package com.robotshop.shipping;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
-import java.util.Random;
 
 @SpringBootApplication
 @EnableWebMvc
-public class ShippingServiceApplication implements WebMvcConfigurer {
+public class ShippingServiceApplication {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ShippingServiceApplication.class);
 
     public static void main(String[] args) {
-        SpringApplication.run(ShippingServiceApplication.class, args);
+        try {
+            SpringApplication.run(ShippingServiceApplication.class, args);
+
+            logger.info(
+                "shipping service started",
+                org.slf4j.MarkerFactory.getMarker("STARTUP")
+            );
+
+        } catch (Exception e) {
+            logger.error(
+                "shipping service failed to start",
+                e
+            );
+            throw e;
+        }
     }
 }
