@@ -6,7 +6,7 @@ public class Calculator {
     private double latitude = 0;
     private double longitude = 0;
 
-    public Calculator(double latitdue, double longitude) {
+    public Calculator(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }

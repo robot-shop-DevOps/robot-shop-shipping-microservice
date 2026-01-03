@@ -40,7 +40,7 @@ jobs:
         working-directory: ./shipping
 
       - name: Upload Test Reports
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: surefire-reports
